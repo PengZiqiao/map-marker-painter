@@ -11,18 +11,21 @@ var app = new Vue({
         // 颜色文本框
         color: ['#20A0FF', '#13CE66', '#F7BA2A', '#FF4949'],
         // 右侧表格
-        table: '请上传表格。'
+        table: '请上传表格。',
+        // loading
+        fullscreenLoading: false
     },
 
     methods: {
+
         // 单选 改变样式
         setMapStyle: function () {
-            map.setMapStyle('amap://styles/' + this.style)
+            map.setMapStyle('amap://styles/' + this.style);
         },
 
         // 多选 选择图层
         setFeatures: function () {
-            map.setFeatures(this.features)
+            map.setFeatures(this.features);
         },
 
         // 上传文件 绘制标记
@@ -61,13 +64,33 @@ var app = new Vue({
                     marker.setMap(map)
 
                 });
-            })
+            });
+
+            // 关闭loading动画
+            app.fullscreenLoading = false
+        },
+
+        // 下传文件 下载坐标
+        positionSuccess: function () {
+            this.$message.success('请下载文件后打开，确认坐标完整后，再次点击绘制标记');
+            window.location.href = "static/output.csv";
+            // 关闭loading动画
+            app.fullscreenLoading = false
+        },
+
+        //loading 动画
+        showloading: function () {
+            this.fullscreenLoading = true
         }
+
     }
 });
+
 
 // 显示高德地图
 var map = new AMap.Map('amap', {
     zoom: 11,
     center: [118.8, 32.1]
+
 });
+map.setFeatures(app.features);

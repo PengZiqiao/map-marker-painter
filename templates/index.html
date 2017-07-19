@@ -27,12 +27,50 @@
             {% endfor %}
 
             <h2>上传表格</h2>
-            <el-upload action="{{ url_for('table_upload') }}"
-                       :on-success="uploadSuccess"
-                       :show-file-list="false">
-                <el-button type="primary" icon="upload">点击上传</el-button>
-                <div slot="tip" class="el-upload__tip">此处写文件提示</div>
-            </el-upload>
+            <el-col :span="6">
+                {# 上传有坐标文件 #}
+                <el-upload action="{{ url_for('table_upload') }}"
+                           :on-progress="showloading"
+                           :on-success="uploadSuccess"
+                           :show-file-list="false">
+                    <el-button type="primary" icon="edit">绘制标记</el-button>
+
+                </el-upload>
+            </el-col>
+            <el-col :span="6">
+                {# 上传无坐标文件 #}
+                <el-upload action="{{ url_for('download_position') }}"
+                           :on-progress="showloading"
+                           :on-success="positionSuccess"
+                           :show-file-list="false"
+                           v-loading.fullscreen.lock="fullscreenLoading">
+                    <el-button type="primary" icon="search">生成坐标</el-button>
+                </el-upload>
+            </el-col>
+            <el-col :span="12">
+
+                <a href="http://lbs.amap.com/console/show/picker" target="_blank">
+                    <el-button type="primary" icon="plus">坐标拾取器</el-button>
+                </a>
+
+            </el-col>
+            {# 提示 #}
+            <br>
+            <div class="el-upload__tip">
+                格式为csv或txt，
+                如下图：包含no、name、lng、lat、color五列，
+                代表编号、项目名称、经度、纬度、颜色。文本格式中，
+                每列用“,”分隔，注意编辑码为UTF-8。
+                如果没有坐标信息，lng、lat两例可为空，
+                然后点击生成坐标，下载含坐标文件。
+                无法生成坐标的，可使用坐标拾取器查询，手动添加。
+            </div>
+            <br>
+            {# 示例图片 #}
+            <img src="{{ url_for('static',filename='img/1.JPG') }}">
+            <img src="{{ url_for('static',filename='img/2.JPG') }}">
+
+
         </el-col>
 
         {# middle #}
