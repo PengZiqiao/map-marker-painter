@@ -1,101 +1,57 @@
 {% extends "base.html" %}
 {% set mapStyle = ['normal','macaron','whitesmoke','dark','grey'] %}
 {% set mapFeatures = ['bg','road','building','point'] %}
-
 {% block content %}
-    {# left #}
-    <div class="el-col-8">
+    <el-row :gutter="20">
+        {# left #}
+        <el-col :span="8">
 
-        <h2>样式</h2>
-        <el-radio-group v-model="style" @change="setMapStyle">
-            {% for style in mapStyle %}
-                <el-radio label="{{ style }}">{{ style }}</el-radio>
+            <h2>样式</h2>
+            <el-radio-group v-model="style" @change="setMapStyle">
+                {% for style in mapStyle %}
+                    <el-radio label="{{ style }}">{{ style }}</el-radio>
+                {% endfor %}
+            </el-radio-group>
+
+            <h2>图层</h2>
+            <el-checkbox-group v-model="features" @change="setFeatures">
+                {% for features in mapFeatures %}
+                    <el-checkbox label="{{ features }}">{{ features }}</el-checkbox>
+                {% endfor %}
+            </el-checkbox-group>
+
+            <h2>标记颜色</h2>
+            {% for i in [0,1,2,3] %}
+                <span class="demonstration">{{ i }}：</span>
+                <el-color-picker v-model="color[{{ i }}]"></el-color-picker>
             {% endfor %}
-        </el-radio-group>
 
-        <h2>图层</h2>
-        <el-checkbox-group v-model="features" @change="setFeatures">
-            {% for features in mapFeatures %}
-                <el-checkbox label="{{ features }}">{{ features }}</el-checkbox>
-            {% endfor %}
-        </el-checkbox-group>
+            <h2>上传表格</h2>
+            <el-upload action="{{ url_for('table_upload') }}"
+                       :on-success="uploadSuccess"
+                       :show-file-list="false">
+                <el-button type="primary" icon="upload">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">此处写文件提示</div>
+            </el-upload>
+        </el-col>
 
-        <h2>上传表格</h2>
-        <el-upload action="{{ url_for('table_upload') }}"
-                   :on-success="uploadSuccess"
-                   :show-file-list="false">
-            <el-button type="primary" icon="upload">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">此处写文件提示</div>
-        </el-upload>
-    </div>
-    <div class="el-col-10">
-        <div id="amap" style="width:600px; height:700px"></div>
-    </div>
-    <div class="el-col-6">
-        <div v-html="table"></div>
-    </div>
+        {# middle #}
+        <el-col :span="10">
+            <div id="amap" style="width:600px; height:700px"></div>
+        </el-col>
+
+        {# right #}
+        <el-col :span="6">
+            <div v-html="table"></div>
+        </el-col>
+
+    </el-row>
 {% endblock %}
 
 {% block script %}
-
-    {# vue script #}
-    <script>
-        var app = new Vue({
-            el: '#vue',
-            delimiters: ["{[", "]}"],
-            data: {
-                style: 'normal',
-                features: ['bg', 'road'],
-                table: '请上传表格。'
-            },
-            methods: {
-                setMapStyle: function () {
-                    map.setMapStyle('amap://styles/' + this.style)
-                },
-                setFeatures: function () {
-                    map.setFeatures(this.features)
-                },
-                uploadSuccess: function (data) {
-                    //this.$message.success('文件上传成功！');
-
-                    // 显示表格
-                    this.table = data['table'];
-
-                    // 在地图上添加标记
-                    AMapUI.loadUI(['overlay/SvgMarker'], function (SvgMarker) {
-                        // 定义开关
-                        var shape = new SvgMarker.Shape.Circle({
-                            radius: 12,
-                            fillColor: 'blue', //填充色
-                            strokeWidth: 0 //描边宽度
-                        });
-                        // 绘制标记
-                        data['json'].forEach(function (each) {
-                            var marker = new SvgMarker(
-                                shape,
-                                {
-                                    iconLabel: {
-                                        innerHTML: each['no'],
-                                        style: {color: 'white'}
-                                    },
-                                    position: [each['lng'], each['lat']]
-                                });
-                            marker.setMap(map)
-                        });
-                    })
-                }
-            }
-        });
-    </script>
-
     {# amap #}
     <script src="http://webapi.amap.com/maps?v=1.3&key={{ amap_key }}"></script>
     <script src="//webapi.amap.com/ui/1.0/main.js"></script>
-    <script>
-        var map = new AMap.Map('amap', {
-            zoom: 11,
-            center: [118.8, 32.1]
-        });
-
-    </script>
+    {# vue script #}
+    <script src="{{ url_for('static',filename='js/js_for_index.js') }}"></script>
 {% endblock %}
