@@ -23,12 +23,15 @@ def geocode(add):
         return result
     else:
         # 获取失败则返回情况说明
-        return result['info']
+        return result
 
 
 def write_pos(df):
     for index, row in df.iterrows():
+        print(f">>> 正在查询{row['name']}坐标")
         pos = geocode(row['name'])
-        if 'int' not in pos:
-            df.at[index, 'lng'], df.at[index, 'lat'] = pos['lng'], pos['lat']
+        print(pos)
+        if 'info' not in pos:
+            df.at[index,'lng']=pos['lng']
+            df.at[index,'lat']=pos['lat']
     return df
